@@ -1,0 +1,118 @@
+CREATE TABLE Publisher (
+    publisher_id INTEGER PRIMARY KEY,          
+    name        TEXT    NOT NULL,
+    address     TEXT,
+    phone       TEXT
+);
+
+CREATE TABLE Book (
+    book_id          INTEGER PRIMARY KEY,
+    title            TEXT NOT NULL,
+    isbn             TEXT UNIQUE NOT NULL,     
+    publication_year INTEGER,                  
+    publisher_id     INTEGER,
+    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id)
+);
+
+CREATE TABLE Author (
+    author_id  INTEGER PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    last_name  TEXT NOT NULL,
+    bio        TEXT
+);
+
+CREATE TABLE Book_Author (
+    book_id   INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id)   REFERENCES Book(book_id)   ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES Author(author_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Member (
+    member_id  INTEGER PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    last_name  TEXT NOT NULL,
+    email      TEXT UNIQUE NOT NULL,
+    phone      TEXT,
+    address    TEXT,
+    join_date  DATE NOT NULL
+);
+
+CREATE TABLE Borrow (
+    borrow_id     INTEGER PRIMARY KEY,
+    book_id     INTEGER NOT NULL,
+    member_id   INTEGER NOT NULL,
+    borrow_date   DATE    NOT NULL,
+    due_date    DATE    NOT NULL,
+    return_date DATE,
+    FOREIGN KEY (book_id)   REFERENCES Book(book_id),
+    FOREIGN KEY (member_id) REFERENCES Member(member_id)
+);
+
+-- 1.Use INSERT INTO for adding rows
+INSERT INTO Publisher (name, address, phone) VALUES
+('Penguin Random House', 'New York', '1234567890'),
+('HarperCollins', 'London', '9876543210'),
+('O’Reilly Media', 'San Francisco', '1112223333'),
+('Scholastic', 'Chicago', '4445556666');
+SELECT * FROM Publisher;
+
+INSERT INTO Author (first_name, last_name, bio) VALUES
+('John', 'Doe', 'Writes modern fiction.'),
+('Emily', 'Clark', 'Author of technical books.'),
+('Robert', 'Martin', 'Known for Clean Code.'),
+('Jane', 'Smith', NULL);
+SELECT * FROM Author;
+
+INSERT INTO Book (title, isbn, publication_year, publisher_id) VALUES
+('Learn SQL', '9780132350884', 2020, 3),
+('Database Systems', '9780321122260', 2019, 1),
+('Clean Code', '9780137081073', 2008, 3),
+('Children Stories', '9780590482306', 2015, 4);
+SELECT * FROM Book;
+
+INSERT INTO Book_Author (book_id, author_id) VALUES
+(1, 2),
+(2, 1),
+(3, 3),
+(4, 4);
+SELECT * FROM Book_Author;
+
+INSERT INTO Member (first_name, last_name, email, phone, address, join_date) VALUES
+('Pallab', 'Sardar', 'pallab@example.com', '9000000001', 'Kolkata', '2024-01-01'),
+('Riya', 'Das', 'riya@example.com', '9000000002', 'Delhi', '2024-02-15'),
+('Amit', 'Roy', 'amit@example.com', '9000000003', 'Mumbai', '2024-03-10'),
+('Sneha', 'Sen', 'sneha@example.com', '9000000004', 'Chennai', '2024-04-05');
+SELECT * FROM Member;
+
+INSERT INTO Borrow (book_id, member_id, borrow_date, due_date, return_date) VALUES
+(1, 1, '2024-05-01', '2024-05-15', '2024-05-14'),
+(2, 2, '2024-05-02', '2024-05-16', '2024-05-15'),
+(3, 3, '2024-05-03', '2024-05-17', NULL),
+(4, 4, '2024-05-04', '2024-05-18', NULL);
+SELECT * FROM Borrow;
+
+--2.Handle missing values using NULL or default
+INSERT INTO Author (first_name, last_name)
+VALUES ('Riya', 'Sen');
+SELECT * FROM Author;
+-- Handle Default 
+ALTER TABLE Member ADD COLUMN Gov_id INTEGER DEFAULT '000000000';
+ALTER TABLE Member ADD COLUMN address_local TEXT DEFAULT 'Unknown';
+SELECT * FROM Member;
+
+-- 3.Use UPDATE and DELETE with WHERE conditions
+UPDATE Author
+SET bio = 'Writes educational books'
+WHERE first_name = 'Riya' AND last_name = 'Sen';
+
+UPDATE Author
+SET bio = 'Python'
+WHERE first_name = 'Jane' AND last_name = 'Smith';
+SELECT * FROM Author;
+
+DELETE FROM Borrow
+WHERE book_id = 3 AND member_id = 3;
+SELECT * FROM Borrow;
+
